@@ -1,6 +1,7 @@
 package main
 
 import (
+  "math"
   "hash/fnv"
 
   "github.com/spaolacci/murmur3"
@@ -54,6 +55,6 @@ func genHashBaseCombo(data []byte) [2]uint64 {
 }
 
 // https://www.eecs.harvard.edu/~michaelm/postscripts/rsa2008.pdf
-func transformHashes(h1, h2, i uint64) uint64 {
-  return h1 + i * h2
+func transformHashes(h1, h2, i, size uint64) uint64 {
+  return  ( h1 + i * h2 + uint64(math.Pow(float64(i), 2)) ) % size
 }

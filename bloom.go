@@ -48,7 +48,7 @@ func genLocs(data []byte, b *BloomFilter) (locations []uint64) {
   locations = make([]uint64, b.k)
   h := genHashBase(data, b)
   for i := uint64(0); i < uint64(b.k); i++ {
-    locations[i] = transformHashes(h[0], h[1], i) % uint64(b.m)
+    locations[i] = transformHashes(h[0], h[1], i, uint64(b.m))
   }
   return
 }
