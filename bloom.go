@@ -41,10 +41,6 @@ func estimate(n uint, p float64) (m, k uint) {
   return
 }
 
-func round(f float64) float64 {
-  return math.Floor(f + .5)
-}
-
 func genLocs(data []byte, b *BloomFilter) (locations []uint64) {
   locations = make([]uint64, b.k)
   h := genHashBase(data, b)
