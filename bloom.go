@@ -1,9 +1,10 @@
 package main
 
 import (
-  "fmt"
+  //"fmt"
   "log"
   "math"
+  //"time"
 )
 
 // n = number of elements in data set
@@ -54,9 +55,10 @@ func genLocs(data []byte, b *BloomFilter) (locations []uint64) {
 }
 
 func (b *BloomFilter) Add(data []byte) *BloomFilter {
+  //defer timeTrack(time.Now(), "bloom add")
   locations := genLocs(data, b)
   for i := range locations {
-    if b.bits[locations[i]] == true { fmt.Println("Collision!") }
+    //if b.bits[locations[i]] == true { fmt.Println("Collision!") }
     b.bits[locations[i]] = true
   }
   return b
@@ -67,6 +69,7 @@ func (b *BloomFilter) AddString(data string) *BloomFilter {
 }
 
 func (b *BloomFilter) Query(data []byte) bool {
+  //defer timeTrack(time.Now(), "bloom query")
   locations := genLocs(data, b)
   for i := range locations {
     if b.bits[locations[i]] == false {
