@@ -3,6 +3,7 @@ package main
 import (
   "time"
   "log"
+  "math"
 )
 
 func timeTrack(start time.Time, name string) {
