@@ -1,10 +1,8 @@
 package main
 
 import (
-  //"fmt"
   "log"
   "math"
-  //"time"
 )
 
 // n = number of elements in data set
@@ -32,7 +30,6 @@ func NewBloomWithEstimate(n uint, p float64, h int) (b *BloomFilter, err error) 
 }
 
 func estimateBloomSize(n uint, p float64) (m, k uint) {
-  //m = math.Ceil(( float64(n) * math.Log(p) ) / math.Log(1.0 / math.Pow( 2.0, math.Log(2.0) )))
   size := math.Ceil(-1 * float64(n) * math.Log(p) / math.Pow( math.Log(2.0), 2.0 ))
   k = uint( round(math.Log(2.0) * size / float64(n)) )
   m = uint( size )
@@ -51,10 +48,7 @@ func (b *BloomFilter) genLocs(data []byte) (locations []uint64) {
 }
 
 func (b *BloomFilter) Add(data []byte) *BloomFilter {
-  //defer timeTrack(time.Now(), "bloom add")
-  locations := b.genLocs(data)
-  for _, elem := range locations {
-    //if b.bits[locations[i]] == true { fmt.Println("Collision!") }
+  for _, elem := range b.genLocs(data) {
     b.bits[elem] = true
   }
   return b
@@ -65,10 +59,8 @@ func (b *BloomFilter) AddString(data string) *BloomFilter {
 }
 
 func (b *BloomFilter) Query(data []byte) bool {
-  //defer timeTrack(time.Now(), "bloom query")
-  locations := b.genLocs(data)
-  for i := range locations {
-    if b.bits[locations[i]] == false {
+  for _, elem := range b.genLocs(data) {
+    if b.bits[elem] == false {
       // one missing bit is enough to verify non-existence, exit ASAP
       return false
     }

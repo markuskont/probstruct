@@ -1,7 +1,6 @@
 package main
 
 import (
-  //"fmt"
   "errors"
   "math"
 )
@@ -47,9 +46,8 @@ func (s *CountMinSketch) genLocs(data []byte) (locations []uint64) {
 }
 
 func (s *CountMinSketch) Add(data []byte) *CountMinSketch {
-  locations := s.genLocs(data)
   // location = hashing function i < depth
-  for i, elem := range locations {
+  for i, elem := range s.genLocs(data) {
     //val := &s.count[i][locations[i]]
     s.count[i][elem] += 1
   }
@@ -61,8 +59,7 @@ func (s *CountMinSketch) AddString(data string) *CountMinSketch {
 }
 
 func (s *CountMinSketch) QueryMin(data []byte) (min uint64) {
-  locations := s.genLocs(data)
-  for i, elem := range locations {
+  for i, elem := range s.genLocs(data) {
     c := s.count[i][elem]
     // 1 = only 0 can be smaller, but element is not in dataset in this case (bloom false negative logic)
     if c == 1 {
