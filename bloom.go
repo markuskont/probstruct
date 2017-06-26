@@ -21,7 +21,7 @@ type BloomFilter struct {
 }
 
 func NewBloomWithEstimate(n uint, p float64, h int) (b *BloomFilter, err error) {
-  m, k := estimate(n, p)
+  m, k := estimateBloomSize(n, p)
   b = &BloomFilter{
     m:    m,
     k:    k,
@@ -31,7 +31,7 @@ func NewBloomWithEstimate(n uint, p float64, h int) (b *BloomFilter, err error) 
   return b, err
 }
 
-func estimate(n uint, p float64) (m, k uint) {
+func estimateBloomSize(n uint, p float64) (m, k uint) {
   //m = math.Ceil(( float64(n) * math.Log(p) ) / math.Log(1.0 / math.Pow( 2.0, math.Log(2.0) )))
   size := math.Ceil(-1 * float64(n) * math.Log(p) / math.Pow( math.Log(2.0), 2.0 ))
   k = uint( round(math.Log(2.0) * size / float64(n)) )

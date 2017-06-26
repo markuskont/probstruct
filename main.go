@@ -7,6 +7,7 @@ import (
 
 func main() {
   bloom, err := NewBloomWithEstimate(300000, 0.01, 3)
+  countminsketch, err := InitMinSketchWithEstimate(0.01, 0.01)
   //bloom, err := NewBloomWithEstimate(300000000, 0.01, -1)
   fmt.Println("Initiated bloom filter with m:", bloom.m, "k:", bloom.k, "hash method:", bloom.hash)
   if err != nil { log.Fatal(err) }
@@ -22,6 +23,9 @@ func main() {
   //}
   fmt.Println( bloom.QueryString("test1m3") )
   fmt.Println( bloom.QueryString("test3m3") )
+  fmt.Println( "----------------------" )
+  fmt.Println(countminsketch.width)
+  fmt.Println(countminsketch.depth)
   //asd := genRandomIntegers(10)
   //fmt.Println(asd)
 }
