@@ -27,7 +27,7 @@ func main() {
   fmt.Println(countminsketch.width)
   fmt.Println(countminsketch.depth)
   countminsketch.AddString("test1m3")
-  fmt.Println( countminsketch.count )
+  fmt.Println( countminsketch.QueryString("test1m3") )
   //asd := genRandomIntegers(10)
   //fmt.Println(asd)
 }

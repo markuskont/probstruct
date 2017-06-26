@@ -60,11 +60,22 @@ func (s *CountMinSketch) AddString(data string) *CountMinSketch {
   return s.Add([]byte(data))
 }
 
-//func (s *CountMinSketch) QueryMin(data []byte) min uint64 {
-//  locations := s.genLocs(data)
-//  //counts = make([]uint64, s.depth)
-//  for i := range locations {
-//    //counts[i] = s.count[i][locations[i]]
-//  }
-//  return
-//}
+func (s *CountMinSketch) QueryMin(data []byte) (min uint64) {
+  locations := s.genLocs(data)
+  for i, elem := range locations {
+    c := s.count[i][elem]
+    // 1 = only 0 can be smaller, but element is not in dataset in this case (bloom false negative logic)
+    // no point in iterating further
+    if c == 1 {
+      min = 1
+      break
+    } else if min == 0 || c < min {
+      min = c
+    }
+  }
+  return
+}
+
+func (s *CountMinSketch) QueryString(data string) uint64 {
+  return s.QueryMin([]byte(data))
+}
