@@ -53,9 +53,9 @@ func (b *BloomFilter) genLocs(data []byte) (locations []uint64) {
 func (b *BloomFilter) Add(data []byte) *BloomFilter {
   //defer timeTrack(time.Now(), "bloom add")
   locations := b.genLocs(data)
-  for i := range locations {
+  for _, elem := range locations {
     //if b.bits[locations[i]] == true { fmt.Println("Collision!") }
-    b.bits[locations[i]] = true
+    b.bits[elem] = true
   }
   return b
 }
