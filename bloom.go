@@ -41,7 +41,7 @@ func estimateBloomSize(n uint, p float64) (m, k uint) {
   return
 }
 
-func genLocs(data []byte, b *BloomFilter) (locations []uint64) {
+func (b *BloomFilter) genLocs(data []byte) (locations []uint64) {
   locations = make([]uint64, b.k)
   h := genHashBase(data, b)
   for i := uint64(0); i < uint64(b.k); i++ {
@@ -52,7 +52,7 @@ func genLocs(data []byte, b *BloomFilter) (locations []uint64) {
 
 func (b *BloomFilter) Add(data []byte) *BloomFilter {
   //defer timeTrack(time.Now(), "bloom add")
-  locations := genLocs(data, b)
+  locations := b.genLocs(data)
   for i := range locations {
     //if b.bits[locations[i]] == true { fmt.Println("Collision!") }
     b.bits[locations[i]] = true
@@ -66,7 +66,7 @@ func (b *BloomFilter) AddString(data string) *BloomFilter {
 
 func (b *BloomFilter) Query(data []byte) bool {
   //defer timeTrack(time.Now(), "bloom query")
-  locations := genLocs(data, b)
+  locations := b.genLocs(data)
   for i := range locations {
     if b.bits[locations[i]] == false {
       // one missing bit is enough to verify non-existence, exit ASAP
