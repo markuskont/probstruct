@@ -65,7 +65,6 @@ func (s *CountMinSketch) QueryMin(data []byte) (min uint64) {
   for i, elem := range locations {
     c := s.count[i][elem]
     // 1 = only 0 can be smaller, but element is not in dataset in this case (bloom false negative logic)
-    // no point in iterating further
     if c == 1 {
       min = 1
       break
