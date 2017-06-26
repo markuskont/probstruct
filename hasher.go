@@ -8,13 +8,14 @@ import (
 )
 
 // generate base hash values which will be later used for uniques hashes
-func genHashBase(data []byte, b *BloomFilter) (h [2]uint64) {
+// hf = chosen hashing method
+func genHashBase(data []byte, hf int) (h [2]uint64) {
   switch {
-  case b.hash <= 1:
+  case hf <= 1:
     h = genHashBaseMurmur(data)
-  case b.hash == 2:
+  case hf == 2:
     h = genHashBaseFnv(data)
-  case b.hash >= 3:
+  case hf >= 3:
     h = genHashBaseCombo(data)
   }
   return

@@ -43,7 +43,7 @@ func estimateBloomSize(n uint, p float64) (m, k uint) {
 
 func (b *BloomFilter) genLocs(data []byte) (locations []uint64) {
   locations = make([]uint64, b.k)
-  h := genHashBase(data, b)
+  h := genHashBase(data, b.hash)
   for i := uint64(0); i < uint64(b.k); i++ {
     locations[i] = transformHashes(h[0], h[1], i, uint64(b.m))
   }

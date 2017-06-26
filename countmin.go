@@ -1,6 +1,7 @@
 package main
 
 import (
+  //"fmt"
   "errors"
   "math"
 )
@@ -36,16 +37,34 @@ func estimateCountMinSize(epsilon, delta float64) (depth, width uint) {
   return
 }
 
-//func (s *CountMinSketch) Add(data []byte) *CountMinSketch {
-//  //defer timeTrack(time.Now(), "bloom add")
-//  locations := 1
-//  //for i := range locations {
-//  //  //if b.bits[locations[i]] == true { fmt.Println("Collision!") }
-//  //  b.bits[locations[i]] = true
-//  //}
-//  return s
-//}
-//
-//func (s *CountMinSketch) genLocs(data []byte) []uint64 {
-//
+func (s *CountMinSketch) genLocs(data []byte) (locations []uint64) {
+  locations = make([]uint64, s.depth)
+  h := genHashBase(data, s.hash)
+  for i := uint64(0); i < uint64(s.depth); i++ {
+    locations[i] = transformHashes(h[0], h[1], i, uint64(s.width))
+  }
+  return
+}
+
+func (s *CountMinSketch) Add(data []byte) *CountMinSketch {
+  locations := s.genLocs(data)
+  // location = hashing function i < depth
+  for i, elem := range locations {
+    //val := &s.count[i][locations[i]]
+    s.count[i][elem] += 1
+  }
+  return s
+}
+
+func (s *CountMinSketch) AddString(data string) *CountMinSketch {
+  return s.Add([]byte(data))
+}
+
+//func (s *CountMinSketch) QueryMin(data []byte) min uint64 {
+//  locations := s.genLocs(data)
+//  //counts = make([]uint64, s.depth)
+//  for i := range locations {
+//    //counts[i] = s.count[i][locations[i]]
+//  }
+//  return
 //}
