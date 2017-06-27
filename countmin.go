@@ -3,6 +3,7 @@ package probstruct
 import (
   "errors"
   "math"
+  "sync/atomic"
 )
 
 // estimate size of count-min-sketch using provided estimates
@@ -48,8 +49,8 @@ func (s *CountMinSketch) genLocs(data []byte) (locations []uint64) {
 func (s *CountMinSketch) Add(data []byte) *CountMinSketch {
   // location = hashing function i < depth
   for i, elem := range s.genLocs(data) {
-    //val := &s.count[i][locations[i]]
-    s.count[i][elem] += 1
+    atomic.AddUint64(&s.count[i][elem], 1)
+    //s.count[i][elem] += 1
   }
   return s
 }
