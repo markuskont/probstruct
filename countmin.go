@@ -10,6 +10,7 @@ import (
 // width = [ e / epsilon ]
 // depth = [ ln( 1 / delta ) ]
 // hash = hashing method to use ( <= 1 for murmur, 2 for fnv, else mix of both)
+// https://blog.demofox.org/2015/02/22/count-min-sketch-a-probabilistic-histogram/
 type CountMinSketch struct {
   depth   uint
   width   uint
@@ -75,4 +76,8 @@ func (s *CountMinSketch) QueryMin(data []byte) (min uint64) {
 
 func (s *CountMinSketch) QueryString(data string) uint64 {
   return s.QueryMin([]byte(data))
+}
+
+func (s *CountMinSketch) ReturnCounts() [][]uint64 {
+  return s.count
 }
