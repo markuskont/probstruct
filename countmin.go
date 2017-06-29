@@ -47,7 +47,7 @@ func (s *CountMinSketch) genLocs(data []byte) (locations []uint64) {
   return
 }
 
-func (s *CountMinSketch) Add(data []byte) *CountMinSketch {
+func (s *CountMinSketch) Increment(data []byte) *CountMinSketch {
   // location = hashing function i < depth
   for i, elem := range s.genLocs(data) {
     atomic.AddUint64(&s.count[i][elem], 1)
@@ -56,8 +56,27 @@ func (s *CountMinSketch) Add(data []byte) *CountMinSketch {
   return s
 }
 
-func (s *CountMinSketch) AddString(data string) *CountMinSketch {
-  return s.Add([]byte(data))
+// Increment but return new value to the user
+// To estimate if element is frequent or not
+// Should dedup the amount of work needed, as in streams we have to do this on every encountered word
+func (s *CountMinSketch) IncrementGetVal(data []byte) (min uint64) {
+  // location = hashing function i < depth
+  for i, elem := range s.genLocs(data) {
+    c := &s.count[i][elem]
+    atomic.AddUint64(c, 1)
+    if min == 0 || *c < min {
+      min = *c
+    }
+  }
+  return
+}
+
+func (s *CountMinSketch) IncrementStringGetVal(data string) (min uint64) {
+  return s.IncrementGetVal([]byte(data))
+}
+
+func (s *CountMinSketch) IncrementString(data string) *CountMinSketch {
+  return s.Increment([]byte(data))
 }
 
 func (s *CountMinSketch) QueryMin(data []byte) (min uint64) {

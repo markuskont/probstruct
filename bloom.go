@@ -18,7 +18,7 @@ type BloomFilter struct {
   hash  int
 }
 
-func NewBloomWithEstimate(n uint, p float64, h int) (b *BloomFilter, err error) {
+func InitBloomWithEstimate(n uint, p float64, h int) (b *BloomFilter, err error) {
   m, k := estimateBloomSize(n, p)
   b = &BloomFilter{
     m:    m,
@@ -38,6 +38,7 @@ func estimateBloomSize(n uint, p float64) (m, k uint) {
   return
 }
 
+// integer values
 func (b *BloomFilter) genLocs(data []byte) (locations []uint64) {
   locations = make([]uint64, b.k)
   h := genHashBase(data, b.hash)
