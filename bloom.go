@@ -72,3 +72,13 @@ func (b *BloomFilter) Query(data []byte) bool {
 func (b *BloomFilter) QueryString(data string) bool {
   return b.Query([]byte(data))
 }
+
+func (b *BloomFilter) AssessFill() float64 {
+  total := b.m
+  used := 0
+  for _, loc := range b.bits {
+    if loc == true { used += 1 }
+  }
+  //fmt.Println("used;", used, "total:", total)
+  return float64(used) / float64(total)
+}

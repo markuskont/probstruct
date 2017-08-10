@@ -100,3 +100,19 @@ func (s *CountMinSketch) QueryString(data string) uint64 {
 func (s *CountMinSketch) ReturnCounts() [][]uint64 {
   return s.count
 }
+
+func (s *CountMinSketch) GetDimensions() (w, d uint) {
+  return s.width, s.depth
+}
+
+func (s *CountMinSketch) AssessFill() float64 {
+  total := s.width * s.depth
+  used := 0
+  for _, block := range s.count {
+    for _, val := range block {
+      if val > 0 { used += 1 }
+    }
+  }
+  //fmt.Println("used;", used, "total:", total)
+  return float64(used) / float64(total)
+}
