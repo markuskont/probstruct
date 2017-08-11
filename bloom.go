@@ -1,7 +1,6 @@
 package probstruct
 
 import (
-  "log"
   "math"
 )
 
@@ -12,8 +11,8 @@ import (
 // k = num of needed hash functions
 // hash = hashing method to use ( <= 1 for murmur, 2 for fnv, else mix of both)
 type BloomFilter struct {
-  m     uint
-  k     uint
+  m     uint64
+  k     uint64
   bits  []bool
   hash  int
 }
@@ -29,12 +28,10 @@ func InitBloomWithEstimate(n uint, p float64, h int) (b *BloomFilter, err error)
   return b, err
 }
 
-func estimateBloomSize(n uint, p float64) (m, k uint) {
+func estimateBloomSize(n uint, p float64) (m, k uint64) {
   size := math.Ceil(-1 * float64(n) * math.Log(p) / math.Pow( math.Log(2.0), 2.0 ))
-  k = uint( round(math.Log(2.0) * size / float64(n)) )
-  m = uint( size )
-  // max size for 32bit integer
-  if m > 4294967295 { log.Fatal("Estimated bitarray length ", m, " does not fit in unsigned 32bit integer. Dataset size is ", n, " and confidence is ", p, ". Try lowering.") }
+  k = uint64( round(math.Log(2.0) * size / float64(n)) )
+  m = uint64( size )
   return
 }
 
@@ -42,8 +39,8 @@ func estimateBloomSize(n uint, p float64) (m, k uint) {
 func (b *BloomFilter) genLocs(data []byte) (locations []uint64) {
   locations = make([]uint64, b.k)
   h := genHashBase(data, b.hash)
-  for i := uint64(0); i < uint64(b.k); i++ {
-    locations[i] = transformHashes(h[0], h[1], i, uint64(b.m))
+  for i := uint64(0); i < b.k; i++ {
+    locations[i] = transformHashes(h[0], h[1], i, b.m)
   }
   return
 }

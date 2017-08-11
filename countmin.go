@@ -12,8 +12,8 @@ import (
 // hash = hashing method to use ( <= 1 for murmur, 2 for fnv, else mix of both)
 // https://blog.demofox.org/2015/02/22/count-min-sketch-a-probabilistic-histogram/
 type CountMinSketch struct {
-  depth   uint
-  width   uint
+  depth   uint64
+  width   uint64
   count   [][]uint64
   hash    int
 }
@@ -28,13 +28,13 @@ func InitMinSketchWithEstimate(epsilon, delta float64, h int) (s *CountMinSketch
     hash:   h,
   }
   s.count = make([][]uint64, depth)
-  for i := uint(0); i < depth; i++ { s.count[i] = make([]uint64, width) }
+  for i := uint64(0); i < depth; i++ { s.count[i] = make([]uint64, width) }
   return s, err
 }
 
-func estimateCountMinSize(epsilon, delta float64) (depth, width uint) {
-  depth = uint( math.Ceil( math.Log( 1.0 / delta ) ) )
-  width = uint( math.Ceil( math.E / epsilon ) )
+func estimateCountMinSize(epsilon, delta float64) (depth, width uint64) {
+  depth = uint64( math.Ceil( math.Log( 1.0 / delta ) ) )
+  width = uint64( math.Ceil( math.E / epsilon ) )
   return
 }
 
@@ -101,7 +101,7 @@ func (s *CountMinSketch) ReturnCounts() [][]uint64 {
   return s.count
 }
 
-func (s *CountMinSketch) GetDimensions() (w, d uint) {
+func (s *CountMinSketch) GetDimensions() (w, d uint64) {
   return s.width, s.depth
 }
 
