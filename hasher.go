@@ -7,7 +7,7 @@ import (
   "github.com/spaolacci/murmur3"
 )
 
-// generate base hash values which will be later used for uniques hashes
+// generate base hash values which will be later used for unique hashes
 // hf = chosen hashing method
 func genHashBase(data []byte, hf int) (h [2]uint64) {
   switch {
@@ -31,7 +31,7 @@ func genHashBaseMurmur(data []byte) [2]uint64 {
     h1, h2,
   }
 }
-// simple fnv
+// 2x64bit fnv
 func genHashBaseFnv(data []byte) [2]uint64 {
   hasher := fnv.New64a()
   hasher.Write(data)

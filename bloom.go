@@ -30,7 +30,7 @@ func InitBloomWithEstimate(n uint, p float64, h int) (b *BloomFilter, err error)
 
 func estimateBloomSize(n uint, p float64) (m, k uint64) {
   size := math.Ceil(-1 * float64(n) * math.Log(p) / math.Pow( math.Log(2.0), 2.0 ))
-  k = uint64( round(math.Log(2.0) * size / float64(n)) )
+  k = uint64( round( math.Log(2.0) * size / float64(n) ) )
   m = uint64( size )
   return
 }
@@ -76,6 +76,5 @@ func (b *BloomFilter) AssessFill() float64 {
   for _, loc := range b.bits {
     if loc == true { used += 1 }
   }
-  //fmt.Println("used;", used, "total:", total)
   return float64(used) / float64(total)
 }
