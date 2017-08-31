@@ -2,9 +2,10 @@ package probstruct
 
 // WIP
 
-//import (
-//  "fmt"
-//)
+import (
+  "math"
+  "fmt"
+)
 
 type LinearCounting struct {
   m     uint64
@@ -29,6 +30,21 @@ func (lc *LinearCounting) Add(data []byte) (location uint64) {
 
 func (lc *LinearCounting) AddString(data string) uint64 {
   return lc.Add([]byte(data))
+}
+
+func (lc *LinearCounting) GetFill(val bool) (m uint64) {
+  m = 0
+  for _, bit := range lc.bits {
+    if bit == val { m += 1 }
+  }
+  return
+}
+
+func (lc *LinearCounting) AssessCardinality() float64 {
+  Un := lc.GetFill(false)
+  Vn := float64( Un ) / float64( lc.m )
+  n := math.Log( Vn )
+  return -1 * float64(lc.m) * n
 }
 
 func (lc *LinearCounting) ReturnData() []bool {
