@@ -74,6 +74,10 @@ func (h *HLL) AddString(item string) *HLL {
 // Add converts databyte item into uint64 and adds position of first true boolean after bitwise header into appropriate bucket
 func (h *HLL) AddHash(item []byte) *HLL {
   hash := genHashBase(item, h.hash)[0]
+  return h.Add(hash)
+}
+
+func (h *HLL) Add(hash uint64) *HLL {
   diff := h.bitness - h.p
   index := hash >> diff
   tail := hash << h.p
