@@ -2,8 +2,8 @@ package probstruct
 
 import(
   "errors"
-  "math/bits"
   "math"
+  "math/bits"
 )
 
 // N = number of buckets in registry
@@ -21,12 +21,12 @@ type HLL struct {
   cardinality uint64
 
   // some data points are already globally unique unsigned integers, e.g. IPv4 addresses and ports
-  // thus, alpha correction for hash collisions is not needed
+  // thus, alpha correction for hash collisions is not needed, and we will have to adjust for lenth when calculating buckets
   hashing bool
   // switch between 32 and 64 bit input items
   // by default bitwise operations assumes unsigned 64bit hash input
   // breaks when counting 32bit globally unique values
-  bitness uint8
+  bitness uint
   // select hashing method, in line with bloom and cms implementations
   hash int
 }
@@ -74,7 +74,7 @@ func (h *HLL) AddString(item string) *HLL {
 // Add converts databyte item into uint64 and adds position of first true boolean after bitwise header into appropriate bucket
 func (h *HLL) AddHash(item []byte) *HLL {
   hash := genHashBase(item, h.hash)[0]
-  diff := 64 - h.p
+  diff := h.bitness - h.p
   index := hash >> diff
   tail := hash << h.p
   count := uint8(bits.LeadingZeros64(tail)) + 1
@@ -89,7 +89,7 @@ func (h *HLL) Count() *HLL {
   Z := float64(0)
   for _, c := range h.buckets {
     if c > 0 {
-      Z += float64(1 / math.Pow(float64(2), float64(c)))
+      Z += float64( 1 / math.Pow( float64(2), float64(c) ) )
     }
   }
   Z = 1 / Z
