@@ -43,7 +43,3 @@ func (r *Reservoir) GetSample() []interface{} {
 func (r *Reservoir) GetK() int {
 	return r.k
 }
-
-func (r *Reservoir) randomRange() int {
-	return rand.Intn(r.k)
-}
