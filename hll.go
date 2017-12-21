@@ -6,10 +6,7 @@ import (
 	"math/bits"
 )
 
-// N = number of buckets in registry
-// b = number of significant bits used assigning incoming data
-// leading zeros in remaining binary value are used to estimate probability
-// buckets = estimators with Length of N
+// HLL implements hyperloglog prob counting algorithm
 type HLL struct {
 	m uint32
 	p uint
@@ -31,11 +28,7 @@ type HLL struct {
 	hash int
 }
 
-// Init new HLL instance
-// user should choose between 4 and 16 significant bits
-// each bit increases computational complexity by order of magnitude
-// 16 = 65536, 15 = 32768, 14 = 16384, etc
-// x << y == x * 2**y
+// InitHLL initializes new HLL struct
 func InitHLL(precision uint, hashing bool, hash int) (h *HLL, err error) {
 	if precision < 4 || precision > 16 {
 		return nil, errors.New("precision must be integer between 4 and 16")
@@ -67,16 +60,18 @@ func InitHLL(precision uint, hashing bool, hash int) (h *HLL, err error) {
 	return h, err
 }
 
+// AddString converts string input into byte array and invokes Add()
 func (h *HLL) AddString(item string) *HLL {
 	return h.AddHash([]byte(item))
 }
 
-// Add converts databyte item into uint64 and adds position of first true boolean after bitwise header into appropriate bucket
+// AddHash creates 64bit hash of input byte array and ivokes Add()
 func (h *HLL) AddHash(item []byte) *HLL {
 	hash := genHashBase(item, h.hash)[0]
 	return h.Add64(hash)
 }
 
+// Add64 calculates leading zeros from 64bit hash value and updates respective buckets
 func (h *HLL) Add64(hash uint64) *HLL {
 	diff := h.bitness - h.p
 	index := hash >> diff
@@ -89,18 +84,20 @@ func (h *HLL) Add64(hash uint64) *HLL {
 	return h
 }
 
-func (h *HLL) Add32(hash uint32) *HLL {
-	diff := h.bitness - h.p
-	index := hash >> diff
-	tail := hash << h.p
-	count := uint8(bits.LeadingZeros32(tail)) + 1
+// Idea was to leave item unhashed if we already have in, but this did not work in practice
+//func (h *HLL) Add32(hash uint32) *HLL {
+//	diff := h.bitness - h.p
+//	index := hash >> diff
+//	tail := hash << h.p
+//	count := uint8(bits.LeadingZeros32(tail)) + 1
+//
+//	if count > h.buckets[index] {
+//		h.buckets[index] = count
+//	}
+//	return h
+//}
 
-	if count > h.buckets[index] {
-		h.buckets[index] = count
-	}
-	return h
-}
-
+// Count calculates harmonic mean and updates cardinality
 func (h *HLL) Count() *HLL {
 	Z := float64(0)
 	for _, c := range h.buckets {
@@ -114,6 +111,7 @@ func (h *HLL) Count() *HLL {
 	return h
 }
 
+// Merge joins multiple HLL objects by selecting max(A,B)
 func (h *HLL) Merge(h2 *HLL) (h3 *HLL, err error) {
 	if h.p != h2.p {
 		return nil, errors.New("HLL objects must have identical presicion values for merging")
@@ -131,10 +129,12 @@ func (h *HLL) Merge(h2 *HLL) (h3 *HLL, err error) {
 	return h3, nil
 }
 
+// GetCardinality is a halper for asking cardinality
 func (h *HLL) GetCardinality() uint64 {
 	return h.cardinality
 }
 
+// GetCounters is a helper for asking raw counters
 func (h *HLL) GetCounters() uint32 {
 	return h.m
 }
