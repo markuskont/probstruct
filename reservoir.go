@@ -6,17 +6,19 @@ import (
 
 // Reservoir implements simple reservoir filter
 type Reservoir struct {
-	k      int
-	total  uint64
-	sample []interface{}
+	k        int
+	total    uint64
+	switches uint64
+	sample   []interface{}
 }
 
 // InitReservoir instantiates new Reservoir struct
 func InitReservoir(k int) (r *Reservoir, err error) {
 	r = &Reservoir{
-		k:      k,
-		total:  0,
-		sample: make([]interface{}, k),
+		k:        k,
+		total:    0,
+		switches: 0,
+		sample:   make([]interface{}, k),
 	}
 	return r, nil
 }
@@ -29,6 +31,7 @@ func (r *Reservoir) Add(item interface{}) *Reservoir {
 	} else {
 		if rand.Float64() < (float64(r.k) / float64(r.total)) {
 			r.sample[rand.Intn(r.k)] = item
+			r.switches++
 		}
 	}
 	return r
@@ -42,4 +45,14 @@ func (r *Reservoir) GetSample() []interface{} {
 // GetK is a helper to return all sampled values
 func (r *Reservoir) GetK() int {
 	return r.k
+}
+
+// GetTotal is a helper to return number of items seen
+func (r *Reservoir) GetTotal() uint64 {
+	return r.total
+}
+
+// GetSwitches is a helper to return number of items seen
+func (r *Reservoir) GetSwitches() uint64 {
+	return r.switches
 }
