@@ -17,6 +17,9 @@ func (b BaseHash) Transform(bound, N uint64) []uint64 {
 	return locations
 }
 
+func (b BaseHash) First() uint64  { return b[0] }
+func (b BaseHash) Second() uint64 { return b[1] }
+
 type Algorithm int
 
 const (
