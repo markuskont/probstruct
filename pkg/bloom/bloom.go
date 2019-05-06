@@ -22,16 +22,16 @@ type Filter struct {
 // hash = hashing method to use ( <= 1 for murmur, 2 for fnv)
 // n = number of elements in data set
 // p = acceptable false positive 0 < p < 1 (no checks atm)
-func InitFilterWithEstimate(n uint, p float64, h hasher.Algorithm) (b *Filter, err error) {
+func NewFilterWithEstimate(n uint, p float64, h hasher.Algorithm) (b *Filter, err error) {
 	m, k := estimateBloomSize(n, p)
-	if b, err = InitFilter(m, k, h); err != nil {
+	if b, err = NewFilter(m, k, h); err != nil {
 		return nil, err
 	}
 	return b, nil
 }
 
 // InitFilter instantiates a new bloom filter with static length and hash function number
-func InitFilter(m, k uint64, h hasher.Algorithm) (b *Filter, err error) {
+func NewFilter(m, k uint64, h hasher.Algorithm) (b *Filter, err error) {
 	b = &Filter{
 		m:   m,
 		k:   k,

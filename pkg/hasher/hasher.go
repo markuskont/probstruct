@@ -6,6 +6,8 @@ import (
 	"github.com/spaolacci/murmur3"
 )
 
+var secondHashAddition = []byte{1}
+
 type BaseHash [2]uint64
 
 func (b BaseHash) Transform(bound, N uint64) []uint64 {
@@ -39,7 +41,7 @@ func (a Algorithm) GetBaseHash(items ...[]byte) BaseHash {
 			h.Write(item)
 		}
 		h1 = h.Sum64()
-		h.Write([]byte{1})
+		h.Write(secondHashAddition)
 		h2 = h.Sum64()
 	case Murmur:
 		h := murmur3.New128()
