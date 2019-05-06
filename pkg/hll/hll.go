@@ -118,6 +118,9 @@ func Merge(containers ...*HyperLogLog) (*HyperLogLog, error) {
 		return nil, err
 	}
 	for _, v := range containers {
+		if v == nil {
+			return nil, fmt.Errorf("Missing hll container in merge list")
+		}
 		for j, v2 := range v.buckets {
 			merged.buckets[j] = util.MaxUint8(v2, merged.buckets[j])
 		}
