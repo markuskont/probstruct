@@ -12,7 +12,7 @@ func (b BaseHash) Transform(bound, N uint64) []uint64 {
 	var locations = make([]uint64, N)
 	var i uint64
 	for i = 0; i < N; i++ {
-		locations[i] = (b[0] + i*b[1]) % bound
+		locations[i] = (b.First() + i*b.Second()) % bound
 	}
 	return locations
 }
