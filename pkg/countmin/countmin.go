@@ -60,7 +60,8 @@ func (s *Sketch) InitCounters() *Sketch {
 func (s *Sketch) Increment(data []byte) uint64 {
 	// location = hashing function i < depth
 	var min uint64
-	for i, j := range s.hash.GetBaseHash(data).Transform(s.width, s.depth) {
+	locations := s.hash.GetBaseHash(data).Transform(s.width, s.depth)
+	for i, j := range locations {
 		count := atomic.AddUint64(&s.count[i][j], 1)
 		if count < min || count == 0 {
 			min = count
@@ -95,7 +96,8 @@ func (s *Sketch) IncrementAny(data interface{}) uint64 {
 func (s Sketch) Query(data []byte) uint64 {
 	// location = hashing function i < depth
 	var min uint64
-	for i, j := range s.hash.GetBaseHash(data).Transform(s.width, s.depth) {
+	locations := s.hash.GetBaseHash(data).Transform(s.width, s.depth)
+	for i, j := range locations {
 		count := s.count[i][j]
 		if count < min || count == 0 {
 			min = count

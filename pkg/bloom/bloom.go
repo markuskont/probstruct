@@ -90,6 +90,9 @@ func (b Filter) Query(data []byte) bool {
 		return false
 	}
 	locations := b.hsh.GetBaseHash(data).Transform(b.m, b.k)
+	if len(locations) == 0 {
+		return false
+	}
 	for _, elem := range locations {
 		if b.bits[elem] == false {
 			return false
