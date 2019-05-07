@@ -92,7 +92,7 @@ func (s *Sketch) IncrementAny(data interface{}) uint64 {
 }
 
 // Query is nearly identical fot Increment but does not modify anything, only returning the estimation
-func (s *Sketch) Query(data []byte) uint64 {
+func (s Sketch) Query(data []byte) uint64 {
 	// location = hashing function i < depth
 	var min uint64
 	for i, j := range s.hash.GetBaseHash(data).Transform(s.width, s.depth) {
@@ -102,6 +102,28 @@ func (s *Sketch) Query(data []byte) uint64 {
 		}
 	}
 	return min
+}
+
+// QueryString is a helper to avoid excessive typecasting
+func (s Sketch) QueryString(data string) uint64 {
+	return s.Query([]byte(data))
+}
+
+// QueryAny is a wrapper to handle arbitrary data types
+// Encooding errors are currently quietly consumed to maintain return type consistency
+func (s Sketch) QueryAny(data interface{}) uint64 {
+	switch v := data.(type) {
+	case []byte:
+		return s.Query(v)
+	case string:
+		return s.QueryString(v)
+	default:
+		b, err := encodeNonByte(data)
+		if err == nil {
+			return s.Query(b)
+		}
+		return 0
+	}
 }
 
 func encodeNonByte(data interface{}) ([]byte, error) {
