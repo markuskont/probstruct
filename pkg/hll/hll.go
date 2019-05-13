@@ -1,10 +1,12 @@
-package probstruct
+package hll
 
 import (
+	"container/list"
 	"errors"
 	"fmt"
 	"math"
 	"math/bits"
+	"sync"
 
 	"github.com/markuskont/probstruct/pkg/hasher"
 	"github.com/markuskont/probstruct/pkg/util"
@@ -16,6 +18,8 @@ const (
 
 // HyperLogLog implements hyperloglog prob counting algorithm
 type HyperLogLog struct {
+	*sync.Mutex
+
 	m uint32
 	p uint
 	// each bucket will hold max( count_zeroes + 1 ) in 64bit uint with 4..16 bits already derived
@@ -36,9 +40,10 @@ func NewHyperLogLog(precision uint, hash *hasher.Algorithm) (h *HyperLogLog, err
 		return nil, errors.New("precision must be integer between 4 and 16")
 	}
 	h = &HyperLogLog{
-		p:    precision,
-		m:    1 << precision,
-		hash: hasher.Fnv,
+		p:     precision,
+		m:     1 << precision,
+		hash:  hasher.Fnv,
+		Mutex: &sync.Mutex{},
 	}
 	if hash != nil {
 		h.hash = *hash
@@ -64,13 +69,29 @@ func (h *HyperLogLog) Add(items ...[]byte) *HyperLogLog {
 		return h
 	}
 	for _, v := range items {
-		h.add64(h.hash.GetBaseHash(v).First())
+		h.Add64(h.hash.GetBaseHash(v).First())
+	}
+	return h
+}
+
+// AddFromLL is a helper to efficiently get cardinality from a linked list
+func (h *HyperLogLog) AddFromLL(items *list.List) *HyperLogLog {
+	if items == nil || items.Len() == 0 {
+		return h
+	}
+	for elem := items.Front(); elem != nil; elem = elem.Next() {
+		switch v := elem.Value.(type) {
+		case []byte:
+			h.Add64(h.hash.GetBaseHash(v).First())
+		case string:
+			h.Add64(h.hash.GetBaseHash([]byte(v)).First())
+		}
 	}
 	return h
 }
 
 // Add64 calculates leading zeros from 64bit hash value and updates respective buckets
-func (h *HyperLogLog) add64(hash uint64) *HyperLogLog {
+func (h *HyperLogLog) Add64(hash uint64) *HyperLogLog {
 	diff := bitness - h.p
 	index := hash >> diff
 	tail := hash << h.p
@@ -84,6 +105,8 @@ func (h *HyperLogLog) add64(hash uint64) *HyperLogLog {
 
 // Count calculates harmonic mean and updates cardinality
 func (h *HyperLogLog) Count() *HyperLogLog {
+	h.Lock()
+	defer h.Unlock()
 	Z := float64(0)
 	for _, c := range h.buckets {
 		if c > 0 {
@@ -95,6 +118,8 @@ func (h *HyperLogLog) Count() *HyperLogLog {
 	h.cardinality = uint64(math.Floor(count))
 	return h
 }
+
+func (h HyperLogLog) Get() uint64 { return h.cardinality }
 
 // Merge allows multiple hll objects to be merged into a single structure
 func Merge(containers ...*HyperLogLog) (*HyperLogLog, error) {
